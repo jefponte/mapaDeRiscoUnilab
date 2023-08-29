@@ -7,6 +7,7 @@ import { EventList } from "./features/events/EventList";
 import { EventSelect } from "./features/events/EventSelect";
 import { Footer } from "./components/Footer";
 
+
 function App() {
   return (
     <ThemeProvider theme={appTheme}>
@@ -17,6 +18,7 @@ function App() {
           height: "100vh"
         }}
       >
+
         <Header />
         <Layout>
           <Routes>
