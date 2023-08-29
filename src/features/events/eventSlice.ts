@@ -26,7 +26,7 @@ function tsvToJSON(tsv: string) {
 }
 
 
-interface Event {
+export interface Event {
     id: string,
     area: string,
     process: string;
@@ -36,13 +36,14 @@ interface Event {
 const response = await api.get('');
 const events = tsvToJSON(response.data);
 
-export const initialState = events;
 
 const eventSlice = createSlice({
     name: "events",
-    initialState: initialState,
+    initialState: events,
     reducers: {}
 });
+
+
 
 export const selectEvents = (state: RootState) => state.events;
 
