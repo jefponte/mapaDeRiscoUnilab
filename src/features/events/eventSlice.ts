@@ -33,13 +33,13 @@ export interface Event {
 }
 
 
-const response = await api.get('');
-const events = tsvToJSON(response.data);
+// const response = await api.get('');
+// const events = tsvToJSON(response.data);
 
 
 const eventSlice = createSlice({
     name: "events",
-    initialState: events,
+    initialState: [],
     reducers: {}
 });
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAppSelector } from "../../app/hooks";
 import { selectEvents } from "./eventSlice";
+import { fetchData } from "../../services/api";
 
 export function EventList() {
   const columns = [
@@ -17,12 +18,18 @@ export function EventList() {
     { field: 'unidadeCoResponsavel', headerName: "Unidade Co-Responsavel", width: 250 }
   ];
 
-  const events = useAppSelector(selectEvents);
+  const [events, setevEnts] = useState([]);
+  useEffect(() => {
+    fetchData(setevEnts);
+  }, []);
+  console.log(events);
+
+  // const events = useAppSelector(selectEvents);
 
   return (
     <div>
       Event List
-      {events.map((element) => {
+      {events.map((element: any) => {
         return (<p key={element.id}>{element.area}</p>);
       })}
     </div>
