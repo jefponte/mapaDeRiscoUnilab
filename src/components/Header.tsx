@@ -132,7 +132,7 @@ export const Header = () => {
               onClick={handleOpenAbout}
               sx={{ my: 2, color: 'white', display: 'block' }}
             >
-              SobreAA
+              Sobre
             </Button>
             <Button
               onClick={handleOpenContact}
