@@ -3,11 +3,11 @@ import { fetchData } from "../../services/api";
 
 export function EventList() {
 
-  const [goals, setGoals] = useState([]);
+  const [events, setevEnts] = useState([]);
   useEffect(() => {
-    fetchData(setGoals);
+    fetchData(setevEnts);
   }, []);
-
+  console.log(events);
   return (
     <div>
         Event List
