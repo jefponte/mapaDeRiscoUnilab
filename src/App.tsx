@@ -11,7 +11,6 @@ import { Footer } from "./components/Footer";
 function App() {
   return (
     <ThemeProvider theme={appTheme}>
-
       <Box
         component="main"
         sx={{
