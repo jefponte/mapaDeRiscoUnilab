@@ -9,6 +9,6 @@ export const appTheme = createTheme({
         },
         primary: { main: "#3b0304" },
         secondary: { main: "#E50914" },
-        text: { primary: "#F5f5f1" }
+        text: { primary: "#000000" }
     },
 }, ptBR);
