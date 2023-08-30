@@ -63,7 +63,7 @@ export const Header = () => {
 
   return (
     <AppBar position="static" style={styles.paperContainer}>
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         <Toolbar disableGutters>
           <ImageLogo />
 
@@ -155,7 +155,7 @@ export const Header = () => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+          <Typography align="center" variant="h6" component="h2">
             Sobre
           </Typography>
           <Typography id="modal-modal-description" align="center" sx={{ mt: 2 }}>
@@ -173,7 +173,7 @@ export const Header = () => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" align="center" variant="h6" component="h2">
+          <Typography align="center" variant="h6" component="h2">
             Dúvidas e ou Sugestões?
           </Typography>
           <Typography id="modal-modal-description" align="center" sx={{ mt: 2 }}>
