@@ -8,9 +8,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Container
                 maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                 <PanelTitle />
-                <Card variant="outlined">
-                    {children}
-                </Card>
+
+                {children}
+
             </Container>
         </Box>
     )
