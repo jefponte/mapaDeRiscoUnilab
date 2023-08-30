@@ -38,7 +38,6 @@ export function EventList() {
     { field: 'riskEvent', headerName: "Evento de Risco", width: 200 },
     { field: 'riskClass', headerName: "Classificação do Risco Inerente", width: 200 },
     { field: 'treatmentOption', headerName: "Resposta ao risco - Opção de Tratamento " },
-    { field: 'tipoIndicador', headerName: "Tipo de Indicador" },
     { field: 'actions', headerName: "Resposta o risco - Ações Propostas", width: 250 },
     { field: 'status', headerName: "Situação", width: 250 }
   ];
