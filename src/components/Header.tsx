@@ -158,8 +158,15 @@ export const Header = () => {
           <Typography align="center" variant="h6" component="h2">
             Sobre
           </Typography>
-          <Typography id="modal-modal-description" align="center" sx={{ mt: 2 }}>
-            Painel desenvolvido em parceria entre PROPLAN e DTI para o acompanhamento das metas e ações da UNILAB, nos níveis táticos e operacionais, a partir dos objetivos estratégicos presentes no PDI (Plano de Desenvolvimento Institucional) vigente.
+          <Typography align="center" sx={{ mt: 2 }}>
+            O painel abaixo consiste no Mapeamento de Riscos à Integridade, tendo como base o Guia de
+            Gestão de Riscos para Integridade da CGU e a participação de unidades detentoras de processos
+            caracterizados a riscos iminentes à integridade.
+          </Typography>
+          <Typography align="center" sx={{ mt: 2 }}>
+            O referido Mapa compõe o rol de atividades previstas no Plano de Integridade da Unilab,
+            exercícios 2022 a 2024, contendo, em suma, o processo, o evento e a resposta ao risco, bem
+            como a situação de prazo de ação da unidade responsável pelo risco.
           </Typography>
         </Box>
       </Modal>
@@ -177,7 +184,7 @@ export const Header = () => {
             Dúvidas e ou Sugestões?
           </Typography>
           <Typography id="modal-modal-description" align="center" sx={{ mt: 2 }}>
-            Encaminhe sua mensagem por este e-maill: painelplanejamento@unilab.edu.br.
+            Encaminhe sua mensagem por este e-maill: sgit@unilab.edu.br
           </Typography>
         </Box>
       </Modal>
