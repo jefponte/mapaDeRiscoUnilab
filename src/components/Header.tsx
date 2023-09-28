@@ -1,17 +1,20 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
+import {
+  Button,
+  IconButton,
+  Menu,
+  Container,
+  Box,
+  Typography,
+  MenuItem
+} from '@mui/material';
+
 import { AppBar, Toolbar } from "@mui/material";
 import Image from "../assets/img/bg-topo.png";
 import LogoUNILAB from "../assets/img/logo-unilab.png";
 import styled from "styled-components";
-import Link from '@mui/material/Link';
+import { Link } from "react-router-dom";
 
 
 import Modal from '@mui/material/Modal';
@@ -21,7 +24,7 @@ import Modal from '@mui/material/Modal';
 
 const ImageLogo = styled(({ ...otherProps }) => <img alt="Logo UNILAB" src={LogoUNILAB} {...otherProps} />)`
   width: 300px;
-  padding: 30px;
+  padding: 25px;
 `;
 
 const styles = {
@@ -97,7 +100,7 @@ export const Header = () => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              <Link href="/">
+              <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <MenuItem>
                   <Typography
                     sx={{ color: (theme) => theme.palette.primary.main }}
@@ -121,13 +124,15 @@ export const Header = () => {
 
 
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Link href="/">
-              <Button
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                Início
-              </Button>
-            </Link>
+
+            <Button
+              component={Link}
+              to="/"
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Início
+            </Button>
+
             <Button
               onClick={handleOpenAbout}
               sx={{ my: 2, color: 'white', display: 'block' }}
@@ -158,8 +163,15 @@ export const Header = () => {
           <Typography align="center" variant="h6" component="h2">
             Sobre
           </Typography>
-          <Typography id="modal-modal-description" align="center" sx={{ mt: 2 }}>
-            Painel desenvolvido em parceria entre PROPLAN e DTI para o acompanhamento das metas e ações da UNILAB, nos níveis táticos e operacionais, a partir dos objetivos estratégicos presentes no PDI (Plano de Desenvolvimento Institucional) vigente.
+          <Typography align="center" sx={{ mt: 2 }}>
+            O painel abaixo consiste no Mapeamento de Riscos à Integridade, tendo como base o Guia de
+            Gestão de Riscos para Integridade da CGU e a participação de unidades detentoras de processos
+            caracterizados a riscos iminentes à integridade.
+          </Typography>
+          <Typography align="center" sx={{ mt: 2 }}>
+            O referido Mapa compõe o rol de atividades previstas no Plano de Integridade da Unilab,
+            exercícios 2022 a 2024, contendo, em suma, o processo, o evento e a resposta ao risco, bem
+            como a situação de prazo de ação da unidade responsável pelo risco.
           </Typography>
         </Box>
       </Modal>
@@ -177,7 +189,7 @@ export const Header = () => {
             Dúvidas e ou Sugestões?
           </Typography>
           <Typography id="modal-modal-description" align="center" sx={{ mt: 2 }}>
-            Encaminhe sua mensagem por este e-maill: painelplanejamento@unilab.edu.br.
+            Encaminhe sua mensagem por este e-maill: sgit@unilab.edu.br
           </Typography>
         </Box>
       </Modal>

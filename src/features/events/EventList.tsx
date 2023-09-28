@@ -32,13 +32,13 @@ export function EventList() {
 
   const columns = [
     { field: 'id', headerName: "Nº", flex: 1 },
-    { field: 'area', headerName: "Área", width: 200 },
-    { field: 'process', headerName: "Processo ", width: 200 },
-    { field: 'riskEvent', headerName: "Evento de Risco", width: 200 },
-    { field: 'riskClass', headerName: "Classificação do Risco Inerente", width: 200 },
-    { field: 'treatmentOption', headerName: "Resposta ao risco - Opção de Tratamento " },
-    { field: 'actions', headerName: "Resposta o risco - Ações Propostas", width: 250 },
-    { field: 'status', headerName: "Situação", width: 250 }
+    { field: 'area', headerName: "Área", flex: 1 },
+    { field: 'process', headerName: "Processo ", flex: 2 },
+    { field: 'riskEvent', headerName: "Evento de Risco", flex: 3 },
+    { field: 'riskClass', headerName: "Classificação do Risco Inerente", flex: 2 },
+    { field: 'treatmentOption', headerName: "Resposta ao risco - Opção de Tratamento ", flex: 1 },
+    { field: 'actions', headerName: "Resposta o risco - Ações Propostas", flex: 3},
+    { field: 'status', headerName: "Situação", flex: 1 }
   ];
 
   const [events, setevEnts] = useState([]);
@@ -82,7 +82,7 @@ export function EventList() {
           rows={events}
           columns={columns}
           loading={events.length === 0}
-          rowHeight={74}
+          rowHeight={50}
           localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
           onCellClick={handleOpen}
         />
