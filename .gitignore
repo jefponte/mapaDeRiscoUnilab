@@ -31,3 +31,5 @@ build
 
 #firebase cache
 *.cache
+
+*.vscode

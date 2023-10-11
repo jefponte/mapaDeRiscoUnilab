@@ -3,8 +3,11 @@ import { Box, Card, Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Mod
 import { DataGrid, ptBR } from '@mui/x-data-grid';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchData } from "../../services/api";
-import { Event } from "./eventSlice";
+import { fetchData, gettingTasks } from "../../services/api";
+import { Event } from "../../types/Event";
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { getEvents, selectEvents } from "./eventSlice";
+import axios from "axios";
 
 
 const style = {
@@ -21,8 +24,10 @@ const style = {
 
 
 export function EventList() {
+  const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event>({} as Event);
+  const events  = useAppSelector(selectEvents);
 
   const handleOpen = (params: any) => {
     setSelectedEvent(params?.row);
@@ -37,13 +42,17 @@ export function EventList() {
     { field: 'riskEvent', headerName: "Evento de Risco", flex: 3 },
     { field: 'riskClass', headerName: "Classificação do Risco Inerente", flex: 2 },
     { field: 'treatmentOption', headerName: "Resposta ao risco - Opção de Tratamento ", flex: 1 },
-    { field: 'actions', headerName: "Resposta o risco - Ações Propostas", flex: 3},
+    { field: 'actions', headerName: "Resposta o risco - Ações Propostas", flex: 3 },
     { field: 'status', headerName: "Situação", flex: 1 }
   ];
 
-  const [events, setevEnts] = useState([]);
+
+  const fetchData = async () => {
+    const data = await gettingTasks();
+    dispatch(getEvents({ events: data }));
+  };
   useEffect(() => {
-    fetchData(setevEnts);
+    fetchData();
   }, []);
 
   return (

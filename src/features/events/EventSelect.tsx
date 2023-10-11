@@ -1,25 +1,35 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { fetchData } from "../../services/api";
-import { Event } from "./eventSlice";
+import { fetchData, gettingTasks } from "../../services/api";
+import { Event } from '../../types/Event';
 import CardLoad from "../../components/CardLoad";
 import { Box, Card, CardContent, Grid, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
+import { getEvents, selectEventById, selectEvents } from "./eventSlice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 export function EventSelect() {
   const { id } = useParams();
-  const [events, setevEnts] = useState<Event[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const events  = useAppSelector(selectEvents);
+  // const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const selectedEvent = useAppSelector((state) => selectEventById(state, id));
+  const dispatch = useAppDispatch();
 
+  const fetchData = async () => {
+    const data = await gettingTasks();
+    dispatch(getEvents({ events: data }));
+  };
   useEffect(() => {
-    fetchData(setevEnts);
+    fetchData();
   }, []);
-  useEffect(() => {
-    if (id != null && events.length > 0) {
-      const selected: Event | undefined = events.find(element => element.id === id);
-      setSelectedEvent(selected || null);
-    }
-  }, [events]);
+
+
+  // useEffect(() => {
+  //   if (id != null && events.length > 0) {
+  //     const selected: Event | undefined = events.find(element => element.id === id);
+  //     setSelectedEvent(selected || null);
+  //   }
+  // }, [events]);
   if (selectedEvent === null) {
     return (
       <>
@@ -62,7 +72,7 @@ export function EventSelect() {
           <Card>
             <CardContent>
               <Typography variant="h5" component="div">
-               Avaliação dos Riscos
+                Avaliação dos Riscos
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
                 Probabilidade: {selectedEvent?.probability}
