@@ -63,10 +63,10 @@ export const ActionList = () => {
           <Box sx={style}>
 
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Risco Nº {selected.id}
+              Ação do Plano de Integridade Nº {selected.id}
             </Typography>
             <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              {/* {selected.riskEvent} */}Teste
+              {selected.description}
             </Typography>
             <MenuList>
               <Divider />

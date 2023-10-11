@@ -6,7 +6,51 @@ import { Box, Card, CardContent, Grid, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { getActions, selectActionById } from "./actionSlice";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { Monitoring } from "../../types/Action";
 
+const CardMonigoring = ({ monitoring }: { monitoring: Monitoring[] }) => {
+    return (<Card>
+        <CardContent>
+            <Typography variant="h5" component="div">
+                Monitoramentos
+            </Typography>
+            <Grid container spacing={4}>
+                {monitoring.map((element, index) => {
+                    return (
+                        <Grid key={element.id} item xl={6} lg={6} md={6} sm={12} xs={12}>
+                            <Card>
+                                <CardContent>
+                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                        Nota de Monitoramento: {element.monitoring_note}
+                                    </Typography>
+                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                        Processo SEI: {element.process}
+                                    </Typography>
+                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                        Data da Nota: {element.note_date}
+                                    </Typography>
+                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                        Status: {element.status}
+                                    </Typography>
+                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                        Evidência/comprovação: {element.status}
+                                    </Typography>
+                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                        Observação: {element.status}
+                                    </Typography>
+
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    );
+                })}
+            </Grid>
+
+
+
+        </CardContent>
+    </Card>);
+}
 
 export const ActionSelected = () => {
     const { id } = useParams();
@@ -14,108 +58,90 @@ export const ActionSelected = () => {
     const dispatch = useAppDispatch();
 
     const fetchData = async () => {
-      const data = await gettingActions();
-      dispatch(getActions({ actions: data }));
+        const data = await gettingActions();
+        dispatch(getActions({ actions: data }));
     };
     useEffect(() => {
-      fetchData();
+        fetchData();
     }, []);
 
     if (selected === null) {
-      return (
-        <>
-          <CardLoad />
-        </>
-      );
+        return (
+            <>
+                <CardLoad />
+            </>
+        );
     }
 
     return (
-      <Box sx={{ minWidth: 275 }}>
-        <br />
-        <Grid container spacing={4}>
-          <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Risco Institucional: Nº{selected?.id}
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Área: {selected?.area} */} TEste
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Processo: {selected?.process} */} TEste
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Evento de Risco: {selected?.riskEvent} */} TEste
-                </Typography>
-                <Link to={"/"}>
-                  Retornar ao Painel
-                </Link>
+        <Box sx={{ minWidth: 275 }}>
+            <br />
+            <Grid container spacing={4}>
+                <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="h5" component="div">
+                                Ação do Plano de Integridade
+                            </Typography>
+                            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                ID: {selected?.id}
+                            </Typography>
+                            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                Descrição da Ação: {selected?.description}
+                            </Typography>
+                            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                Responsável: {selected?.designated}
+                            </Typography>
+                            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                Prazo/ Periodicidade: {selected?.deadline}
+                            </Typography>
+                            <Link to={"/"}>
+                                Retornar ao Painel
+                            </Link>
 
-              </CardContent>
-            </Card>
-
-            {/* <br /><CardActions acoes={selected?.acoes} /> TEste */}
-          </Grid>
+                        </CardContent>
+                    </Card>
+                </Grid>
 
 
-          <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Avaliação dos Riscos
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Probabilidade: {selected?.probability} */} TEste
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Impacto: {selected?.impact} */} TEste
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Classificação do Risco Inerente: {selected?.riskClass} */} TEste
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Classificação: {selected?.classificacaoObjetivo} TEste */}
-                </Typography>
+                <Grid item xl={8} lg={8} md={8} sm={12} xs={12}>
+                    <CardMonigoring monitoring={selected.monitoring} />
+                </Grid>
 
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
+                {/* <Grid item xl={4} lg={4} md={4} sm={12} xs={12}>
             <Card>
               <CardContent>
                 <Typography variant="h5" component="div">
                   Resposta aos Riscos
                 </Typography>
                 <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Opção de Tratamento:  {selected?.treatmentOption} */} TEste
+                  Opção de Tratamento:  {selected?.treatmentOption}
                 </Typography>
                 <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Ações Propostas : {selected?.actions} */} TEste
+                  Ações Propostas : {selected?.actions}
                 </Typography>
                 <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Responsável : {selected?.department} */} TEste
+                  Responsável : {selected?.department}
                 </Typography>
                 <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Início: {selected?.start} */} TEste
+                  Início: {selected?.start}
                 </Typography>
                 <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Término: {selected?.end} */} TEste
+                  Término: {selected?.end} TEste
                 </Typography>
                 <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  {/* Situação: {selected?.status} */} TEste
+                  Situação: {selected?.status} TEste
                 </Typography>
 
               </CardContent>
             </Card>
-          </Grid>
+          </Grid> */}
 
 
 
 
 
-        </Grid>
-      </Box>
+            </Grid>
+        </Box>
     )
-  }
+}

@@ -7,6 +7,7 @@ export interface Action {
     monitoring: Monitoring[];
 }
 export interface Monitoring {
+    id:       string;
     action_id:       string;
     monitoring_note: string | null;
     process:        string | null;
