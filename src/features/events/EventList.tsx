@@ -8,6 +8,7 @@ import { Event } from "../../types/Event";
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { getEvents, selectEvents } from "./eventSlice";
 import axios from "axios";
+import { Legend } from "./components/Legend";
 
 
 const style = {
@@ -95,7 +96,9 @@ export function EventList() {
           localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
           onCellClick={handleOpen}
         />
+
       </Box>
+      <Legend/>
     </Card>
   )
 }
