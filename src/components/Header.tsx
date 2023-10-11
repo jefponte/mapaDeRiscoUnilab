@@ -108,6 +108,13 @@ export const Header = () => {
                 </MenuItem>
               </Link>
 
+              <Link to="/actions" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <MenuItem onClick={handleOpenAbout}>
+                  <Typography
+                    sx={{ color: (theme) => theme.palette.primary.main }}
+                    textAlign="center">Integridade</Typography>
+                </MenuItem>
+              </Link>
 
               <MenuItem onClick={handleOpenAbout}>
                 <Typography
@@ -133,6 +140,12 @@ export const Header = () => {
               Início
             </Button>
 
+            <Button
+              component={Link} to="/actions"
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Integridade
+            </Button>
             <Button
               onClick={handleOpenAbout}
               sx={{ my: 2, color: 'white', display: 'block' }}

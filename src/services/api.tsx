@@ -1,51 +1,64 @@
 import axios from "axios";
-
-
-
-export const columns = [
-    { field: 'id', headerName: "Nº", width: 100 },
-    { field: 'area', headerName: "Área", width: 200 },
-    { field: 'objetivo', headerName: "Objetivo", width: 200 },
-    { field: 'classificacaoIndicador', headerName: "Classificação do Indicador", width: 200 },
-    { field: 'categoriaIndicador', headerName: "Categoria do Indicador" },
-    { field: 'tipoIndicador', headerName: "Tipo de Indicador" },
-    { field: 'descricaoIndicador', headerName: "Descrição do Indicador", width: 250 },
-    { field: 'descricao', headerName: "Descrição da Meta", width: 250 },
-    { field: 'prazo', headerName: "Prazo", width: 100 },
-    { field: 'unidadeResponsavel', headerName: "Unidade Responsavel", width: 200 },
-    { field: 'unidadeCoResponsavel', headerName: "Unidade Co-Responsavel", width: 250 }
-];
+import { Action, Monitoring } from "../types/Action";
 
 
 export const api = axios.create({
-    baseURL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTDX4Iiart_C_hlcFQeBl-GyGMInu9s7wr24yETCoJkStH5ZPlUOrfQw2yTw6Zv9vBNCbw2jKIElCDv/pub?gid=0&single=true&output=tsv'
+    baseURL: 'https://docs.google.com/spreadsheets/d/e/'
 });
 
-export const fetchData = async (setData: any) => {
+
+export const gettingTasks = async () => {
     try {
-        const response = await api.get('');
-        const events = tsvToJSON(response.data);
-        setData(events);
+        const response = await api.get("2PACX-1vTDX4Iiart_C_hlcFQeBl-GyGMInu9s7wr24yETCoJkStH5ZPlUOrfQw2yTw6Zv9vBNCbw2jKIElCDv/pub?gid=0&single=true&output=tsv");
+        return tsvToJSON(response.data);
     } catch (error) {
-        console.error("Erro ao buscar dados:", error);
+        console.log(error);
     }
 };
 
+export const gettingActions = async () => {
+    try {
+        const responseActions = await api.get("2PACX-1vSWaQa27tPSvE6jVw2uEcVS7IItEZtTAtVetWPWMVVbZcyCPfhOls-K1JbK7p6LfTL6d1lAphhWZFMi/pub?gid=0&single=true&output=tsv");
+        const responseMonitoring = await api.get("2PACX-1vSWaQa27tPSvE6jVw2uEcVS7IItEZtTAtVetWPWMVVbZcyCPfhOls-K1JbK7p6LfTL6d1lAphhWZFMi/pub?gid=1491401640&single=true&output=tsv");
+        const actions = tsvToJSON<Action>(responseActions.data);
+        const monitoring = tsvToJSON<Monitoring>(responseMonitoring.data);
+        actions.map((action) => {
+            action.monitoring = [];
+            return action;
+        });
+        actions.map((action) => {
+            monitoring.map((element) => {
+                if(element.action_id === action.id) {
+                    action.monitoring.push(element);
+                }
+            });
+            return action;
 
-function tsvToJSON(tsv: string) {
+        });
+        return actions;
+    } catch (error) {
+        console.log(error);
+    }
+};
+function tsvToJSON<T>(tsv: string): T[] {
     const lines = tsv.split('\r\n');
-    const result: Record<string, string>[] = [];
+    const result: T[] = [];
+    if (lines.length < 2) {
+        return result;
+    }
     const headers = lines[0].split('\t');
     for (let i = 1; i < lines.length; i++) {
         if (!lines[i]) {
             continue;
         }
-        const obj: Record<string, string> = {};
         const currentline = lines[i].split('\t');
+        const obj: Record<string, string> = {};
         for (let j = 0; j < headers.length; j++) {
-            obj[headers[j]] = currentline[j];
+            if (j < currentline.length) {
+                obj[headers[j]] = currentline[j];
+            }
         }
-        result.push(obj);
+        result.push(obj as T);
     }
     return result;
 }

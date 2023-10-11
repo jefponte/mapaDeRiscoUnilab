@@ -1,13 +1,12 @@
 import { Search } from "@mui/icons-material";
 import { Box, Card, Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Modal, Typography } from "@mui/material";
 import { DataGrid, ptBR } from '@mui/x-data-grid';
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
-import { gettingTasks } from "../../services/api";
-import { Event } from "../../types/Event";
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { getEvents, selectEvents } from "./eventSlice";
-import axios from "axios";
+import { gettingActions } from '../../services/api';
+import { getActions, selectActions } from './actionSlice';
+import { Action } from "../../types/Action";
 
 
 const style = {
@@ -23,11 +22,11 @@ const style = {
 };
 
 
-export function EventList() {
+export const ActionList = () => {
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Event>({} as Event);
-  const events = useAppSelector(selectEvents);
+  const [selected, setSelected] = useState<Action>({} as Action);
+  const actions = useAppSelector(selectActions);
 
   const handleOpen = (params: any) => {
     setSelected(params?.row);
@@ -35,25 +34,22 @@ export function EventList() {
   };
   const handleClose = () => setOpen(false);
 
-  const columns = [
-    { field: 'id', headerName: "Nº", flex: 1 },
-    { field: 'area', headerName: "Área", flex: 1 },
-    { field: 'process', headerName: "Processo ", flex: 2 },
-    { field: 'riskEvent', headerName: "Evento de Risco", flex: 3 },
-    { field: 'riskClass', headerName: "Classificação do Risco Inerente", flex: 2 },
-    { field: 'treatmentOption', headerName: "Resposta ao risco - Opção de Tratamento ", flex: 1 },
-    { field: 'actions', headerName: "Resposta o risco - Ações Propostas", flex: 3 },
-    { field: 'status', headerName: "Situação", flex: 1 }
-  ];
-
-
   const fetchData = async () => {
-    const data = await gettingTasks();
-    dispatch(getEvents({ events: data }));
+    const data = await gettingActions();
+    console.log(data);
+    dispatch(getActions({ actions: data }));
   };
   useEffect(() => {
     fetchData();
   }, []);
+
+  const columns = [
+    { field: 'id', headerName: "Nº", flex: 1 },
+    { field: 'type', headerName: "Processo ", flex: 2 },
+    { field: 'description', headerName: "Ação", flex: 1 },
+    { field: 'designated', headerName: "Responsável", flex: 3 },
+    { field: 'deadline', headerName: "Prazo", flex: 2 }
+  ];
 
   return (
     <Card variant="outlined">
@@ -67,14 +63,14 @@ export function EventList() {
           <Box sx={style}>
 
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Risco Nº {selected.id}
+              Ação do Plano de Integridade Nº {selected.id}
             </Typography>
             <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              {selected.riskEvent}
+              {selected.description}
             </Typography>
             <MenuList>
               <Divider />
-              <Link to={`/events/${selected.id}`}>
+              <Link to={`/actions/${selected.id}`}>
                 <MenuItem>
                   <ListItemIcon>
                     <Search fontSize="small" />
@@ -88,9 +84,9 @@ export function EventList() {
           </Box>
         </Modal>
         <DataGrid
-          rows={events}
+          rows={actions}
           columns={columns}
-          loading={events.length === 0}
+          loading={actions.length === 0}
           rowHeight={50}
           localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
           onCellClick={handleOpen}
