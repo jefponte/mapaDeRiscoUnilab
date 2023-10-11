@@ -46,9 +46,9 @@ export const ActionList = () => {
   const columns = [
     { field: 'id', headerName: "Nº", flex: 1 },
     { field: 'type', headerName: "Processo ", flex: 2 },
-    { field: 'description', headerName: "Ação", flex: 1 },
+    { field: 'description', headerName: "Ação", flex: 3 },
     { field: 'designated', headerName: "Responsável", flex: 3 },
-    { field: 'deadline', headerName: "Prazo", flex: 2 }
+    { field: 'deadline', headerName: "Prazo", flex: 1 }
   ];
 
   return (
