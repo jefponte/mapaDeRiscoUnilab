@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 export function EventSelect() {
   const { id } = useParams();
-  const selectedEvent = useAppSelector((state) => selectEventById(state, id));
+  const selected = useAppSelector((state) => selectEventById(state, id));
   const dispatch = useAppDispatch();
 
   const fetchData = async () => {
@@ -20,7 +20,7 @@ export function EventSelect() {
     fetchData();
   }, []);
 
-  if (selectedEvent === null) {
+  if (selected === null) {
     return (
       <>
         <CardLoad />
@@ -36,16 +36,16 @@ export function EventSelect() {
           <Card>
             <CardContent>
               <Typography variant="h5" component="div">
-                Risco Institucional: Nº{selectedEvent?.id}
+                Risco Institucional: Nº{selected?.id}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Área: {selectedEvent?.area}
+                Área: {selected?.area}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Processo: {selectedEvent?.process}
+                Processo: {selected?.process}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Evento de Risco: {selectedEvent?.riskEvent}
+                Evento de Risco: {selected?.riskEvent}
               </Typography>
               <Link to={"/"}>
                 Retornar ao Painel
@@ -54,7 +54,7 @@ export function EventSelect() {
             </CardContent>
           </Card>
 
-          {/* <br /><CardActions acoes={selectedEvent?.acoes} /> */}
+          {/* <br /><CardActions acoes={selected?.acoes} /> */}
         </Grid>
 
 
@@ -65,16 +65,16 @@ export function EventSelect() {
                 Avaliação dos Riscos
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Probabilidade: {selectedEvent?.probability}
+                Probabilidade: {selected?.probability}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Impacto: {selectedEvent?.impact}
+                Impacto: {selected?.impact}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Classificação do Risco Inerente: {selectedEvent?.riskClass}
+                Classificação do Risco Inerente: {selected?.riskClass}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                {/* Classificação: {selectedEvent?.classificacaoObjetivo} */}
+                {/* Classificação: {selected?.classificacaoObjetivo} */}
               </Typography>
 
             </CardContent>
@@ -88,22 +88,22 @@ export function EventSelect() {
                 Resposta aos Riscos
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Opção de Tratamento:  {selectedEvent?.treatmentOption}
+                Opção de Tratamento:  {selected?.treatmentOption}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Ações Propostas : {selectedEvent?.actions}
+                Ações Propostas : {selected?.actions}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Responsável : {selectedEvent?.department}
+                Responsável : {selected?.department}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Início: {selectedEvent?.start}
+                Início: {selected?.start}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Término: {selectedEvent?.end}
+                Término: {selected?.end}
               </Typography>
               <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                Situação: {selectedEvent?.status}
+                Situação: {selected?.status}
               </Typography>
 
             </CardContent>
