@@ -3,7 +3,7 @@ import { Box, Card, Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Mod
 import { DataGrid, ptBR } from '@mui/x-data-grid';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchData, gettingTasks } from "../../services/api";
+import { gettingTasks } from "../../services/api";
 import { Event } from "../../types/Event";
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { getEvents, selectEvents } from "./eventSlice";
@@ -26,11 +26,11 @@ const style = {
 export function EventList() {
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event>({} as Event);
-  const events  = useAppSelector(selectEvents);
+  const [selected, setSelected] = useState<Event>({} as Event);
+  const events = useAppSelector(selectEvents);
 
   const handleOpen = (params: any) => {
-    setSelectedEvent(params?.row);
+    setSelected(params?.row);
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
@@ -67,14 +67,14 @@ export function EventList() {
           <Box sx={style}>
 
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Risco Nº {selectedEvent.id}
+              Risco Nº {selected.id}
             </Typography>
             <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              {selectedEvent.riskEvent}
+              {selected.riskEvent}
             </Typography>
             <MenuList>
               <Divider />
-              <Link to={`/events/${selectedEvent.id}`}>
+              <Link to={`/events/${selected.id}`}>
                 <MenuItem>
                   <ListItemIcon>
                     <Search fontSize="small" />

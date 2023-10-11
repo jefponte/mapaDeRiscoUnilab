@@ -1,17 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router";
-import { fetchData, gettingTasks } from "../../services/api";
-import { Event } from '../../types/Event';
+import { gettingTasks } from "../../services/api";
 import CardLoad from "../../components/CardLoad";
 import { Box, Card, CardContent, Grid, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { getEvents, selectEventById, selectEvents } from "./eventSlice";
+import { getEvents, selectEventById } from "./eventSlice";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 export function EventSelect() {
   const { id } = useParams();
-  const events  = useAppSelector(selectEvents);
-  // const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const selectedEvent = useAppSelector((state) => selectEventById(state, id));
   const dispatch = useAppDispatch();
 
@@ -23,13 +20,6 @@ export function EventSelect() {
     fetchData();
   }, []);
 
-
-  // useEffect(() => {
-  //   if (id != null && events.length > 0) {
-  //     const selected: Event | undefined = events.find(element => element.id === id);
-  //     setSelectedEvent(selected || null);
-  //   }
-  // }, [events]);
   if (selectedEvent === null) {
     return (
       <>
