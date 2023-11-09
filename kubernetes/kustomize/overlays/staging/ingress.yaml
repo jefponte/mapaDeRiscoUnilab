@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: painelplan-unilab
+  annotations:
+    haproxy.org/rewrite-target: /$1
+spec:
+  rules:
+  - host: painelplanejamento-staging.unilab.edu.br
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: painelplan-unilab
+            port:
+              number: 80

@@ -1,0 +1,104 @@
+##
+#  Author: Erivando Sena
+#  Date: 2023-02-27 06:53:33 +0000 (Seg, 25 Feb 2023)
+#
+#  vim:ts=2:sts=2:sw=2:et
+#  lint: k8s
+#
+#  https://github.com/erivandosena/pipeline-cicd-template
+#
+#  License: veja o arquivo de LICENSE que acompanha
+#
+# Sinta-se à vontade para se conectar comigo no Blog (www.erivandosena.com.br), opcionalmente, enviar-me comentários para ajudar a orientar este ou outro código que eu publicar.
+#
+
+# ============================================================================ #
+#                          J e n k i n s   C I   P o d
+# ============================================================================ #
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-agent-inbound
+  namespace: jenkins
+  labels:
+    app: jenkins-agent-inbound
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    datree.skip/CONTAINERS_MISSING_READINESSPROBE_KEY: readiness probe não é relevante para contêineres de shell CI/CD CLI
+    datree.skip/CONTAINERS_MISSING_LIVENESSPROBE_KEY: liveness probe não é relevante para contêineres de shell CI/CD CLI
+spec:
+  serviceAccountName: jenkins-admin
+  priorityClassName: high-priority-apps
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: topology.kubernetes.io/zone
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - jenkins-agent
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - jenkins-agent
+  securityContext:
+    runAsUser: 0
+  containers:
+  # ==================================================
+  # https://hub.docker.com/_/microsoft-dotnet-sdk
+  - name: node
+    image: dti-registro.unilab.edu.br/unilab/node:lts-bullseye
+    command: ["bash", "-c", "apt-get update && apt-get install -y git && tail -f /dev/null"]
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: "250m"
+        memory: "512Mi"
+      limits:
+        cpu: "2000m"
+        memory: "2Gi"
+  - name: docker
+    # ==================================================
+    # https://docs.docker.com/engine/release-notes/24.0/
+    image: dti-registro.unilab.edu.br/unilab/docker:24.0.1-cli
+    command: ["tail", "-f", "/dev/null"]
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: "250m"
+        memory: "512Mi"
+      limits:
+        cpu: "1000m"
+        memory: "2Gi"
+    volumeMounts:
+    - name: docker
+      mountPath: /var/run/docker.sock
+  - name: maven
+    # ==================================================
+    # https://hub.docker.com/_/maven/tags
+    image: dti-registro.unilab.edu.br/unilab/maven:3.9.1-openjdk-17-focal
+    command: ["tail", "-f", "/dev/null"]
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: "250m"
+        memory: "512Mi"
+      limits:
+        cpu: "2000m"
+        memory: "2Gi"
+  ###### volume containers ######
+  volumes:
+  - name: docker
+    hostPath:
+      path: /var/run/docker.sock
+

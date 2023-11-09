@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: painelplan-unilab
+  namespace: painelplan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: painelplan-unilab
+  template:
+    metadata:
+      labels:
+        app: painelplan-unilab
+    spec:
+      containers:
+      - name: painelplan-unilab
+        image: dti-registro.unilab.edu.br/unilab/painelplanejamento:main
+        resources: {}
+        imagePullPolicy: Always
+        workingDir: /usr/share/nginx/html
+        ports:
+        - containerPort: 80
+          name: http
+        envFrom:
+        - configMapRef:
+            name: painelplan-config
+        volumeMounts:
+        - name: tz-america
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-america
+        hostPath:
+          path: /usr/share/zoneinfo/America/Fortaleza
+          type: File
+      imagePullSecrets:
+      - name: harbor-regcred

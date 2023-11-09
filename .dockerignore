@@ -1,0 +1,11 @@
+.git
+.firebase
+.gitignore
+.vscode
+.dockerignore
+README.md
+docker-compose.yml
+Dockerfile
+kubernetes
+pipeline
+vault
