@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: painelplan-unilab
+spec:
+  rules:
+  - host: painelplanejamento.unilab.edu.br
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: painelplan-unilab
+            port:
+              number: 80
+

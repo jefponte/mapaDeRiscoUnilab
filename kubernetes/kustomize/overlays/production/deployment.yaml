@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: painelplan-unilab
+  namespace: painelplan
+spec:
+  selector:
+    matchLabels:
+      app: painelplan-unilab
+  template:
+    metadata:
+      labels:
+        app: painelplan-unilab
+    spec:
+      containers:
+      - name: painelplan-unilab
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 990m
+            memory: 1024Mi
+

@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: painelplan-unilab
+  annotations:
+    haproxy.org/check: "enabled"
+    haproxy.org/forwarded-for: "enabled"
+    haproxy.org/load-balance: "roundrobin"
+    haproxy.org/ssl-redirect: "true"
+    haproxy.org/ssl-redirect-code: "301"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: painelplan-unilab
+            port:
+              number: 80

@@ -1,0 +1,374 @@
+#!/usr/bin/env groovy
+
+def getSecretsPainelPlanConfig(){
+  return [[
+    engineVersion: 2,
+    path: 'secret/painelplanejamento/config',
+    secretValues: [
+    [envVar: 'SSH_DEV', isRequired: false, vaultKey: 'ssh_dev'],
+    [envVar: 'SSH_OPS', isRequired: false, vaultKey: 'ssh_ops'],
+    [envVar: 'HARBOR_REGCRED', isRequired: false, vaultKey: 'regcred'],
+    ]
+  ]]
+}
+
+def getSecretsHarborConfig(){
+  return [[
+    engineVersion: 2,
+    path: 'secret/harbor/config',
+    secretValues: [
+    [envVar: 'HARBOR_USERNAME', isRequired: false, vaultKey: 'usuario'],
+    [envVar: 'HARBOR_PASSWORD', isRequired: false, vaultKey: 'senha'],
+    ]
+  ]]
+}
+
+pipeline {
+  agent {
+    kubernetes {
+      yamlFile './kubernetes/agent/jenkins-agent-pod-k8s.yaml'
+      idleMinutes 5
+      defaultContainer 'node'
+    }
+  }
+
+  options {
+      timestamps()
+      timeout(time: 48, unit: 'HOURS')
+      parallelsAlwaysFailFast()
+      rateLimitBuilds(throttle: [count: 3, durationName: 'minute', userBoost: false])
+      buildDiscarder(logRotator(numToKeepStr: '20'))
+      disableConcurrentBuilds()
+  }
+
+  environment {
+    /* GIT */
+    REPOSITORY = "http://dti-gitlab.unilab.edu.br/dti/painelplanejamento.git"
+    /* Application */
+    APP_NAMESPACE_PROD = "painelplan-prod"
+    APP_NAMESPACE_STAG = "painelplan-stag"
+    INGRESS_NAME = "painelplan-unilab"
+    IMAGE_PREFIX_NAME = "painelplanunilab"
+    TAG = sh(returnStdout: true, script: "git describe --tags --abbrev=0").trim()
+    APP_VERSION = "${env.TAG}"
+    DOCKER_IMAGE = "dti-registro.unilab.edu.br/unilab/${IMAGE_PREFIX_NAME}"
+    DOCKER_TAG = "${env.GIT_BRANCH.split('/')[-1]}"
+    BUILD_NUMBER = "${env.BUILD_NUMBER}"
+    /* Gerais */
+    DOCKER_BUILDKIT = 1
+    TF_IN_AUTOMATION = 1
+    THREAD_COUNT = 6
+    SEMGREP_TIMEOUT = "300"
+    JENKINS_URL = "https://dti-jenkins.unilab.edu.br"
+    RECIPIENT_LEAD_EMAILS = "erivandoramos@unilab.edu.br"
+    RECIPIENT_APPROVAL_EMAILS = "erivandoramos@unilab.edu.br, jefponte@unilab.edu.br "
+    RECIPIENT_TEAM_EMAILS = "erivandosena@gmail.com, j.pontee@gmail.com"
+    VAULT_ADDR = "https://dti-vault.unilab.edu.br"
+    SONAR_URL = "https://dti-sonar.unilab.edu.br"
+    SONAR_PROJECT_KEY = "painelplanunilab"
+    APROVADORES = "admin, erivandosena, jefponte"
+  }
+
+  stages {
+    stage('Iniciando CI/CD') {
+      steps {
+        milestone(ordinal: 1, label: "Milestone: Start CI/CD")
+        script {
+          // executar alguns comandos shell para configurar outros detalhes.
+          sh '''
+            # Instala pacotes
+            apt-get update && apt-get upgrade -y
+            apt-get install -y locales sudo curl wget unzip procps
+
+            # Setup locale
+            DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
+            sed -i 's/# pt_BR.UTF-8 UTF-8/pt_BR.UTF-8 UTF-8/' /etc/locale.gen
+            locale-gen pt_BR.UTF-8
+            echo LANG=pt_BR.UTF-8 | tee /etc/default/locale
+            echo LC_CTYPE=pt_BR.UTF-8 | tee -a /etc/default/locale
+            echo LC_ALL=pt_BR.UTF-8 | tee -a /etc/default/locale
+            echo LANGUAGE=pt_BR:pt:en | tee -a /etc/default/locale
+
+            # Instala kubectl
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+            echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+            chmod u+x ./kubectl
+            install -o root -g root -m 0755 kubectl /usr/bin/kubectl
+            kubectl version --client -ojson
+
+            # Instala Vault
+            curl -o vault.zip -k https://releases.hashicorp.com/vault/1.12.1/vault_1.12.1_linux_amd64.zip; yes | unzip vault.zip
+          '''
+
+          // Ler cofre (Vault)
+          withVault(configuration: [
+              engineVersion: 2,
+              skipSslVerification: true,
+              timeout: 60,
+              vaultCredentialId: 'token-admin-vault-plugin',
+              vaultUrl: 'https://dti-vault.unilab.edu.br'],
+              vaultSecrets: getSecretsPainelPlanConfig()) {
+                sh 'touch .env'
+                sh "echo 'SSH_DEV:${env.SSH_DEV}' > .env"
+                sh "echo 'SSH_OPS:${env.SSH_OPS}' >> .env"
+                sh "echo 'HARBOR_REGCRED:${env.HARBOR_REGCRED}' >> .env"
+              }
+
+          withVault(configuration: [
+            engineVersion: 2,
+            skipSslVerification: true,
+            timeout: 60,
+            vaultCredentialId: 'token-admin-vault-plugin',
+            vaultUrl: 'https://dti-vault.unilab.edu.br'],
+            vaultSecrets: getSecretsHarborConfig()) {
+              sh "echo 'HARBOR_USERNAME:${env.HARBOR_USERNAME}' >> .env"
+              sh "echo 'HARBOR_PASSWORD:${env.HARBOR_PASSWORD}' >> .env"
+            }
+
+          def envFile = readFile('.env').trim()
+          def envLines = envFile.tokenize('\n')
+          envLines.each { line ->
+            def parts = line.tokenize(':')
+            def key = parts[0].trim()
+            def value = parts[1]
+            env."${key}" = "${value}"
+          }
+        }
+      }
+    }
+
+    stage('Build Application') {
+      steps {
+        milestone(ordinal: 2, label: "Milestone: Build")
+        sh '''
+          npm install
+        '''
+      }
+    }
+
+    stage('Testes') {
+      steps {
+        milestone(ordinal: 3, label: "Milestone: Unit Tests")
+        sh '''
+          npm test -- --passWithNoTests
+        '''
+      }
+    }
+
+    stage('SonarQube Analysis') {
+      steps {
+        milestone(ordinal: 4, label: "Milestone: SonarQube")
+        container('maven') {
+          script {
+            sh 'curl -fsSLk https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs'
+            def branchName = env.BRANCH_NAME
+            def scannerHome = tool 'SonarScanner'
+            def projectKey = env.SONAR_PROJECT_KEY
+            withSonarQubeEnv('SonarQube') {
+              sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=${projectKey} -Dsonar.sources=src -Dsonar.exclusions=node_modules/*,app.js,package.json,.scannerwork,.env,public/*,db/*,test/* -Dsonar.language=nodejs -Dsonar.sourceEncoding=UTF-8"
+              def props = readProperties  file: '.scannerwork/report-task.txt'
+              def sonarServerUrl=props['serverUrl']
+              def ceTaskUrl= props['ceTaskUrl']
+              def ceTask
+              timeout(time: 2, unit: 'MINUTES') {
+                waitUntil {
+                  def response = httpRequest(url: ceTaskUrl, authentication: 'sonar-admin')
+                  ceTask = readJSON text: response.content
+                  return "SUCCESS".equals(ceTask["task"]["status"])
+                }
+              }
+              // Quality Gate
+              def resp = httpRequest(url : sonarServerUrl + "/api/qualitygates/project_status?analysisId=" + ceTask["task"]["analysisId"], authentication: 'sonar-admin')
+              def qualitygate = readJSON text: resp.content
+              if ("ERROR".equals(qualitygate["projectStatus"]["status"])) {
+                error "Pipeline abortada devido a falha em Quality Gate"
+                waitForQualityGate abortPipeline: true
+              }
+            }
+          }
+        }
+      }
+    }
+
+    stage('Docker Container') {
+      steps {
+        milestone(ordinal: 5, label: "Milestone: Docker")
+        container('docker') {
+          script {
+            timeout(time: 30, unit: 'MINUTES') {
+              sh "docker build -f ./Dockerfile -t '$DOCKER_IMAGE:$DOCKER_TAG' --build-arg VERSION=$APP_VERSION --build-arg COMMIT_SHA=$GIT_COMMIT --no-cache ./"
+              sh """
+                echo \${HARBOR_PASSWORD} | docker login --username \${HARBOR_USERNAME} --password-stdin https://dti-registro.unilab.edu.br
+                docker tag \${DOCKER_IMAGE}:\${DOCKER_TAG} \${DOCKER_IMAGE}:\${TAG}
+                docker push \${DOCKER_IMAGE}:\${DOCKER_TAG}
+                docker push \${DOCKER_IMAGE}:\${TAG}
+              """
+            }
+          }
+        }
+      }
+    }
+
+    stage('Deploy em Staging') {
+      steps {
+        milestone(ordinal:6, label: "Milestone: Staging")
+        script {
+          sh '''
+            sed -i "s/aGFyYm9y/${HARBOR_REGCRED}/" ./kubernetes/kustomize/base/secret-regcred.yaml
+            sed -i "s/: latest/: ${DOCKER_TAG}/" ./kubernetes/kustomize/overlays/staging/kustomization.yaml
+            sed -i "s/1.0.0-alfa1/${DOCKER_TAG}-alfa1/" ./kubernetes/kustomize/overlays/staging/configmap.yaml
+            kubectl kustomize ./kubernetes/kustomize/overlays/staging > /tmp/temp-staging.yaml
+            cat /tmp/temp-staging.yaml
+          '''
+          withKubeConfig([credentialsId: 'kubeconfig-c3', serverUrl: 'https://dti-k8s-c3.unilab.edu.br:6443']) {
+            sh 'kubectl create namespace $APP_NAMESPACE_STAG --dry-run=client -o yaml | kubectl apply -f -'
+            def status = sh(script: 'kubectl get pods -n ${APP_NAMESPACE_STAG} --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l', returnStdout: true).trim()
+            if (Integer.parseInt(status) > 0) { sh 'kubectl delete -k ./kubernetes/kustomize/overlays/staging/ --ignore-not-found' }
+            sh '''
+              kubectl apply -k ./kubernetes/kustomize/overlays/staging/ --record
+              kubectl get all,ing,pvc,sa,secret -n $APP_NAMESPACE_STAG -o wide
+            '''
+            env.APP_URI_STAGING = sh(script: 'kubectl get ingress $INGRESS_NAME -n $APP_NAMESPACE_STAG -o jsonpath="{.spec.rules[0].host}" | sed "s/^/http:\\/\\//"', returnStdout: true).trim()
+            withEnv(["APP_URI=${env.APP_URI_STAGING}"]) {
+                sh 'echo Endpoint: $APP_URI_STAGING'
+            }
+          }
+        }
+      }
+    }
+
+    stage('Aprovar Deploy') {
+      steps {
+        milestone(ordinal: 7, label: "Milestone: Approval Deploy")
+        script {
+          try {
+            emailext (
+              mimeType: 'text/html',
+              subject: "🚀 Aprovar Deploy [${env.JOB_NAME}] ${currentBuild.fullDisplayName}",
+              to: "${env.RECIPIENT_APPROVAL_EMAILS}",
+              body: """
+                <p>Prezado(a) Leader</p>Existe um Continuous Deployment (CD) aguardando aprovação para produção.
+                <h3><a href='${BUILD_URL}input'><strong>Ir para APROVAÇÃO</strong></a></h3>
+                <p>Endpoint da homologação: ${env.APP_URI_STAGING}</p><br /><p>${env.EMAIL_ASSINATURA}</p><hr><p>${env.EMAIL_RODAPE}</p>
+              """)
+            def clusterChoices = ['Kubernetes C1', 'Kubernetes C2', 'Kubernetes C3']
+            def approval = input(
+              id: 'ApprovalID',
+              message: 'Aprovar Deploy?',
+              ok: 'APROVAR',
+              submitterParameter: 'approver',
+              submitter: "${env.APROVADORES}",
+              parameters: [
+                choice(
+                  choices: clusterChoices,
+                  description: 'Selecione o cluster para implantar',
+                  name: 'Cluster')
+            ])
+
+            switch (approval['Cluster']) {
+              case "Kubernetes C1":
+                env.K8S_CLUSTER = "c1"
+                break
+              case "Kubernetes C2": // c2 desabilitado para CD
+                env.K8S_CLUSTER = "c1"
+                break
+              case "Kubernetes C3":  // c3 desabilitado para CD
+                env.K8S_CLUSTER = "c1"
+                break
+              default:
+                error "N/A"
+            }
+
+            withEnv([
+            "K8S_CLUSTER=${env.K8S_CLUSTER}"
+            ]) {
+              env.APPROVER_NAME = approval['approver']
+            }
+          } catch(Exception e) {
+            error(e.getMessage())
+            currentBuild.result = 'ABORTED';
+          }
+        }
+      }
+    }
+
+    stage('Deploy Produção') {
+      steps {
+        milestone(ordinal: 8, label: "Milestone: Production")
+        script {
+          sh '''
+            sed -i "s/: latest/: ${TAG}/" ./kubernetes/kustomize/overlays/production/kustomization.yaml
+            sed -i "s/1.0.0-beta1/${TAG}/" ./kubernetes/kustomize/overlays/production/configmap.yaml
+            kubectl kustomize ./kubernetes/kustomize/overlays/production > /tmp/temp-production.yaml
+            cat /tmp/temp-production.yaml
+          '''
+          withKubeConfig([credentialsId: 'kubeconfig-c1', serverUrl: 'https://dti-k8s-c1.unilab.edu.br:6443']) {
+            sh 'kubectl create namespace $APP_NAMESPACE_PROD --dry-run=client -o yaml | kubectl apply -f -'
+            def status = sh(script: 'kubectl get pods -n ${APP_NAMESPACE_PROD} --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l', returnStdout: true).trim()
+            if (Integer.parseInt(status) > 0) { sh 'kubectl delete -k ./kubernetes/kustomize/overlays/production/ --ignore-not-found' }
+            sh '''
+              kubectl apply -k ./kubernetes/kustomize/overlays/production/ --record
+              kubectl get all,ing,pvc,sa,secret -n $APP_NAMESPACE_PROD -o wide
+            '''
+            env.APP_URI_PROD = sh(script: 'kubectl get ingress $INGRESS_NAME -n $APP_NAMESPACE_PROD -o jsonpath="{.spec.rules[0].host}" | sed "s/^/http:\\/\\//"', returnStdout: true).trim()
+            withEnv(["APP_URI=${env.APP_URI_PROD}"]) {
+                sh 'echo Endpoint: $APP_URI_PROD'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  post{
+    always {
+      echo 'Processo de pipeline finalizado.'
+    }
+
+    success {
+      echo 'Processo de pipeline BEM-SUCEDIDO.'
+      emailext (
+        attachLog: false,
+        attachmentsPattern: 'build.log',
+        mimeType: 'text/html',
+        subject: "🟢 Pipeline #${env.BUILD_NUMBER} ${currentBuild.currentResult} Job ${env.JOB_NAME}",
+        body: """
+          Parabéns! &#127881; <strong>Team</strong>
+          <p>Pipeline completada com: ${currentBuild.currentResult}</p>
+          &#x2699; Detalhes da execução da pipeline: ${env.BUILD_URL}<br />
+          &#128269; Detalhes do teste de qualidade: ${env.SONAR_URL}/dashboard?id=${env.SONAR_PROJECT_KEY}<br /></p>
+          &#129351; Endpoint de homologação: ${env.APP_URI_STAGING}<br />
+          &#127757; Endpoint de produção: ${env.APP_URI_PROD}<br />
+          Deploy aprovado por: <strong>${env.APPROVER_NAME}</strong></p>
+          <p style="font-size: 0.9em;">&#9729; Os workloads estar&atilde;o completos em aproximadamente 120 segundos.</p><br />
+          <p>${env.EMAIL_ASSINATURA}</p><hr><p>${env.EMAIL_RODAPE}</p>
+        """,
+        to: "${env.RECIPIENT_LEAD_EMAILS}, ${env.RECIPIENT_TEAM_EMAILS}",
+        recipientProviders: []
+      )
+      slackSend(color: "good", message: "Pipeline #${env.BUILD_NUMBER} completada com ${currentBuild.currentResult} em ${env.JOB_NAME} (<${env.BUILD_URL}|Mais info...>)")
+    }
+
+    failure {
+      echo 'Processo de pipeline executado com falha.'
+      emailext (
+        attachLog: true,
+        attachmentsPattern: 'build.log',
+        mimeType: 'text/html',
+        subject: "🔴 Pipeline #${env.BUILD_NUMBER} ${currentBuild.currentResult} Job ${env.JOB_NAME}",
+        body: """
+          Prezados Stakeholders
+          <p>Pipeline completada com: ${currentBuild.currentResult}<br />
+          Detalhes da execução da pipeline: ${env.BUILD_URL}</p><br />
+          <p>${env.EMAIL_ASSINATURA}</p><hr><p>${env.EMAIL_RODAPE}</p>
+        """,
+        to: "${env.RECIPIENT_TEAM_EMAILS}",
+        recipientProviders: []
+      )
+      slackSend(color: "danger", message: "Pipeline #${env.BUILD_NUMBER} finalizada com ${currentBuild.currentResult} em ${env.JOB_NAME} (<${env.BUILD_URL}|Mais info...>)")
+    }
+
+  }
+
+}
