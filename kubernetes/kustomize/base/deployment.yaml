@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: painelplan-unilab
-  namespace: painelplan
+  name: mapaderisco-unilab
+  namespace: mapaderisco
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: painelplan-unilab
+      app: mapaderisco-unilab
   template:
     metadata:
       labels:
-        app: painelplan-unilab
+        app: mapaderisco-unilab
     spec:
       containers:
-      - name: painelplan-unilab
-        image: dti-registro.unilab.edu.br/unilab/painelplanejamento:main
+      - name: mapaderisco-unilab
+        image: dti-registro.unilab.edu.br/unilab/mapaderisco:main
         resources: {}
         imagePullPolicy: Always
         workingDir: /usr/share/nginx/html
@@ -24,7 +24,7 @@ spec:
           name: http
         envFrom:
         - configMapRef:
-            name: painelplan-config
+            name: mapaderisco-config
         volumeMounts:
         - name: tz-america
           mountPath: /etc/localtime

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: painelplan-config
+  name: mapaderisco-config
 data:
   TZ: "America/Fortaleza"
   VAULT_ADDR: "http://dti-vault.unilab.edu.br"
