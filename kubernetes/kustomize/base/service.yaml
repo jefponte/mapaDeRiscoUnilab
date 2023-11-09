@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: painelplan-unilab
-  name: painelplan-unilab
+    app: mapaderisco-unilab
+  name: mapaderisco-unilab
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/path: /
@@ -15,4 +15,4 @@ spec:
     protocol: TCP
     targetPort: 80
   selector:
-    app: painelplan-unilab
+    app: mapaderisco-unilab

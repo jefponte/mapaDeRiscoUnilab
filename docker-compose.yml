@@ -2,14 +2,14 @@
 #
 # Docker:
 # docker login https://dti-registro.unilab.edu.br
-# docker build -t dti-registro.unilab.edu.br/unilab/painelplanunilab:latest .
-# dcker tag dti-registro.unilab.edu.br/unilab/painelplanunilab:latest dti-registro.unilab.edu.br/unilab/painelplanunilab:main
-# docker push dti-registro.unilab.edu.br/unilab/painelplanunilab:main
+# docker build -t dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest .
+# dcker tag dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest dti-registro.unilab.edu.br/unilab/mapaderiscounilab:main
+# docker push dti-registro.unilab.edu.br/unilab/mapaderiscounilab:main
 #
 # Compose V2 (para compose V1 use 'docker-compose'):
 # docker compose up --build -d
 # docker compose logs -f
-# docker exec -it painelplanejamento-debug /bin/bash
+# docker exec -it mapaderisco-debug /bin/bash
 # docker compose down
 
 version: '3.9'
@@ -22,8 +22,8 @@ services:
       args:
         - COMMIT_SHA=2428676974207265762d7061727365202d2d73686f7274204845414429
         - VERSION=1.0.0
-    image: dti-registro.unilab.edu.br/unilab/painelplanunilab:debug
-    container_name: painelplanejamento-debug
+    image: dti-registro.unilab.edu.br/unilab/mapaderiscounilab:debug
+    container_name: mapaderisco-debug
     restart: always
     ports:
       - "8084:80"
@@ -34,7 +34,7 @@ services:
 volumes:
   postgresql_data:
     driver: local
-    
+
 networks:
  developer:
    name: developer

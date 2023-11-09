@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: painelplan-unilab
-  namespace: painelplan
+  name: mapaderisco-unilab
+  namespace: mapaderisco
 spec:
   selector:
     matchLabels:
-      app: painelplan-unilab
+      app: mapaderisco-unilab
   template:
     metadata:
       labels:
-        app: painelplan-unilab
+        app: mapaderisco-unilab
       annotations:
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/agent-inject-status: 'update'
         vault.hashicorp.com/tls-skip-verify: "true"
-        vault.hashicorp.com/agent-inject-secret-config: 'secret/data/painelplanejamento/config'
+        vault.hashicorp.com/agent-inject-secret-config: 'secret/data/mapaderisco/config'
         vault.hashicorp.com/agent-inject-template-config: |
-          {{ with secret "secret/data/painelplanejamento/config" -}}
+          {{ with secret "secret/data/mapaderisco/config" -}}
             {{ .Data.data.ssh_dev }}
           {{ .Data.data.ssh_ops }}
           {{- end }}
-        vault.hashicorp.com/role: "painelplanejamento-stag-role"
+        vault.hashicorp.com/role: "mapaderisco-stag-role"
         vault.hashicorp.com/auth-path: auth/kubernetes/c3
     spec:
-      serviceAccountName: "sa-painelplan"
+      serviceAccountName: "sa-mapaderisco"
       containers:
-      - name: painelplan-unilab
+      - name: mapaderisco-unilab
         command:
         - /bin/bash
         - -cp

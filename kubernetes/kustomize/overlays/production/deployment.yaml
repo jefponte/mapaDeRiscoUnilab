@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: painelplan-unilab
-  namespace: painelplan
+  name: mapaderisco-unilab
+  namespace: mapaderisco
 spec:
   selector:
     matchLabels:
-      app: painelplan-unilab
+      app: mapaderisco-unilab
   template:
     metadata:
       labels:
-        app: painelplan-unilab
+        app: mapaderisco-unilab
     spec:
       containers:
-      - name: painelplan-unilab
+      - name: mapaderisco-unilab
         resources:
           requests:
             cpu: 50m

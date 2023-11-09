@@ -1,19 +1,19 @@
-# Dockerfile for Painel de Acompanhamento do Planejamento da UNILAB
+# Dockerfile for Mapa de Risco da UNILAB
 #
 # Maintainer: Erivando Sena <erivandosena@gmail.com>
 #
 # Description: Este Dockerfile cria uma imagem para Microsserviço, um aplicativo da Web escrito em React.
 #
 # Build instructions:
-#   docker build -f ./Dockerfile -t dti-registro.unilab.edu.br/unilab/painelplanunilab:latest --build-arg VERSION=1.0.0 --build-arg COMMIT_SHA=$(git rev-parse --short HEAD) --no-cache ./source/
-#   docker push dti-registro.unilab.edu.br/unilab/painelplanunilab:latest
+#   docker build -f ./Dockerfile -t dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest --build-arg VERSION=1.0.0 --build-arg COMMIT_SHA=$(git rev-parse --short HEAD) --no-cache ./source/
+#   docker push dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest
 #
 # Usage:
 #
-#   docker run -it --rm -d -p 8088:80 --name painelplanejamento dti-registro.unilab.edu.br/unilab/painelplanunilab:latest
-#   docker logs -f --tail --until=2s painelplanejamento
-#   docker exec -it painelplanejamento bash
-#   docker inspect --format='{{json .Config.Labels}}' dti-registro.unilab.edu.br/unilab/painelplanunilab:latest | jq .
+#   docker run -it --rm -d -p 8088:80 --name mapaderisco dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest
+#   docker logs -f --tail --until=2s mapaderisco
+#   docker exec -it mapaderisco bash
+#   docker inspect --format='{{json .Config.Labels}}' dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest | jq .
 #
 # Dependencies: node:lts / nginx:1.24
 #
@@ -25,18 +25,18 @@
 # Notes:
 #
 # - Este Dockerfile assume que o código do aplicativo está localizado no diretório atual ou (./source)
-# - O aplicativo pode ser acessado em um navegador da Web em https://painelplanejamento.unilab.edu.br/
+# - O aplicativo pode ser acessado em um navegador da Web em https://mapaderisco.unilab.edu.br/
 #
 # Version: 1.0
 
 # Step of compilation
-FROM node:lts-bullseye as build
+FROM node:16.20.2-bullseye as build
 WORKDIR /app
 COPY package*.json ./
 
 COPY . .
-RUN npm ci
-RUN npm run build
+RUN yarn install
+RUN yarn build
 
 # Step of production
 FROM nginx:1.24-bullseye
@@ -86,10 +86,10 @@ EXPOSE 80 22
 LABEL \
   org.opencontainers.image.vendor="UNILAB" \
   org.opencontainers.image.title="Official Node image" \
-  org.opencontainers.image.description="Painel de Acompanhamento do Planejamento da UNILAB" \
+  org.opencontainers.image.description="Mapa de Gestão de Risco da UNILAB" \
   org.opencontainers.image.version="${VERSION}" \
-  org.opencontainers.image.url="https://painelplanejamento.unilab.edu.br/" \
-  org.opencontainers.image.source="http://dti-gitlab.unilab.edu.br/dti/painelplanejamento.git" \
+  org.opencontainers.image.url="https://mapaderisco.unilab.edu.br/" \
+  org.opencontainers.image.source="http://dti-gitlab.unilab.edu.br/dti/mapaderisco.git" \
   org.opencontainers.image.revision="${COMMIT_SHA}" \
   org.opencontainers.image.licenses="N/D" \
   org.opencontainers.image.author="Jeff Ponte" \

@@ -1,9 +1,9 @@
 #!/usr/bin/env groovy
 
-def getSecretsPainelPlanConfig(){
+def getSecretsmapaderiscoConfig(){
   return [[
     engineVersion: 2,
-    path: 'secret/painelplanejamento/config',
+    path: 'secret/mapaderisco/config',
     secretValues: [
     [envVar: 'SSH_DEV', isRequired: false, vaultKey: 'ssh_dev'],
     [envVar: 'SSH_OPS', isRequired: false, vaultKey: 'ssh_ops'],
@@ -43,12 +43,12 @@ pipeline {
 
   environment {
     /* GIT */
-    REPOSITORY = "http://dti-gitlab.unilab.edu.br/dti/painelplanejamento.git"
+    REPOSITORY = "http://dti-gitlab.unilab.edu.br/dti/mapaderiscounilab.git"
     /* Application */
-    APP_NAMESPACE_PROD = "painelplan-prod"
-    APP_NAMESPACE_STAG = "painelplan-stag"
-    INGRESS_NAME = "painelplan-unilab"
-    IMAGE_PREFIX_NAME = "painelplanunilab"
+    APP_NAMESPACE_PROD = "mapaderisco-prod"
+    APP_NAMESPACE_STAG = "mapaderisco-stag"
+    INGRESS_NAME = "mapaderisco-unilab"
+    IMAGE_PREFIX_NAME = "mapaderiscounilab"
     TAG = sh(returnStdout: true, script: "git describe --tags --abbrev=0").trim()
     APP_VERSION = "${env.TAG}"
     DOCKER_IMAGE = "dti-registro.unilab.edu.br/unilab/${IMAGE_PREFIX_NAME}"
@@ -65,7 +65,7 @@ pipeline {
     RECIPIENT_TEAM_EMAILS = "erivandosena@gmail.com, j.pontee@gmail.com"
     VAULT_ADDR = "https://dti-vault.unilab.edu.br"
     SONAR_URL = "https://dti-sonar.unilab.edu.br"
-    SONAR_PROJECT_KEY = "painelplanunilab"
+    SONAR_PROJECT_KEY = "mapaderiscounilab"
     APROVADORES = "admin, erivandosena, jefponte"
   }
 
@@ -108,7 +108,7 @@ pipeline {
               timeout: 60,
               vaultCredentialId: 'token-admin-vault-plugin',
               vaultUrl: 'https://dti-vault.unilab.edu.br'],
-              vaultSecrets: getSecretsPainelPlanConfig()) {
+              vaultSecrets: getSecretsmapaderiscoConfig()) {
                 sh 'touch .env'
                 sh "echo 'SSH_DEV:${env.SSH_DEV}' > .env"
                 sh "echo 'SSH_OPS:${env.SSH_OPS}' >> .env"
