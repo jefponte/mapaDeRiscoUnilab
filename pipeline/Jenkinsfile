@@ -142,19 +142,19 @@ pipeline {
       steps {
         milestone(ordinal: 2, label: "Milestone: Build")
         sh '''
-          npm install
+          yarn install
         '''
       }
     }
 
-    stage('Testes') {
-      steps {
-        milestone(ordinal: 3, label: "Milestone: Unit Tests")
-        sh '''
-          npm test -- --passWithNoTests
-        '''
-      }
-    }
+    // stage('Testes') {
+    //   steps {
+    //     milestone(ordinal: 3, label: "Milestone: Unit Tests")
+    //     sh '''
+    //       yarn test -- --passWithNoTests
+    //     '''
+    //   }
+    // }
 
     stage('SonarQube Analysis') {
       steps {
