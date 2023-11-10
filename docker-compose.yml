@@ -17,8 +17,8 @@ version: '3.9'
 services:
   app-build:
     build:
-      context: $PWD/source/
-      dockerfile: $PWD/Dockerfile
+      context: .
+      dockerfile: Dockerfile
       args:
         - COMMIT_SHA=2428676974207265762d7061727365202d2d73686f7274204845414429
         - VERSION=1.0.0
@@ -27,10 +27,8 @@ services:
     restart: always
     ports:
       - "8084:80"
-      - "37389:22"
     networks:
       - developer
-
 volumes:
   postgresql_data:
     driver: local
