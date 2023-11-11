@@ -1,6 +1,6 @@
 import { Grid, Typography } from "@mui/material";
 import React from "react";
-import imagem from "../assets/img/logo-sgit.jpg";
+import imagem from "../assets/img/logo-sgit.fw.png";
 import CardMedia from '@mui/material/CardMedia';
 
 export function PanelTitle() {
