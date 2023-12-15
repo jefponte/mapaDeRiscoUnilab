@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: mapaderisco-unilab
-        image: dti-registro.unilab.edu.br/unilab/mapaderisco:main
+        image: dti-registro.unilab.edu.br/unilab/mapaderiscounilab:main
         resources: {}
         imagePullPolicy: Always
         workingDir: /usr/share/nginx/html
